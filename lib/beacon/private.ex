@@ -53,7 +53,12 @@ defmodule Beacon.Private do
   end
 
   def endpoint_config(otp_app, endpoint) do
-    Phoenix.Endpoint.Supervisor.config(otp_app, endpoint)
+    # Phoenix.Endpoint.Supervisor.config/2 was removed in phoenix 1.8.x
+    if Kernel.function_exported?(Phoenix.Endpoint.Supervisor, :config, 2) do
+      Phoenix.Endpoint.Supervisor.config(otp_app, endpoint)
+    else
+      Application.get_env(otp_app, endpoint, [])
+    end
   end
 
   def endpoint_host(otp_app, endpoint) do
