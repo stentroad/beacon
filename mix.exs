@@ -66,8 +66,8 @@ defmodule Beacon.MixProject do
       {:ecto_sql, "~> 3.6"},
       {:ex_brotli, "~> 0.3"},
       # FIXME: multipart copy in ex_aws_s3 2.5.0
-      {:ex_aws, "~> 2.4.0"},
-      {:ex_aws_s3, "~> 2.4.0"},
+      {:ex_aws, "~> 2.5"},
+      {:ex_aws_s3, "~> 2.5"},
       {:floki, ">= 0.30.0"},
       {:gettext, "~> 0.26"},
       {:hackney, "~> 1.16"},
@@ -87,10 +87,10 @@ defmodule Beacon.MixProject do
       # TODO: tailwind v4 needs more testing
       {:tailwind, "~> 0.2"},
       esbuild_version(),
-      {:igniter, ">= 0.5.24", optional: true},
+      {:igniter, ">= 0.6.25", optional: true},
 
       # Dev, Test, Docs
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      # {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:bandit, "~> 1.0", only: :dev, optional: true},
       {:phoenix_view, "~> 2.0", only: [:dev, :test]},
       {:ex_doc, "~> 0.29", only: :dev},
