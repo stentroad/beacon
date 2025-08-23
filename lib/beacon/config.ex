@@ -94,6 +94,11 @@ defmodule Beacon.Config do
   @type tailwind_css :: Path.t()
 
   @typedoc """
+  Path to assets vendor dir
+  """
+  @type vendor_dir :: Path.t()
+
+  @typedoc """
   Path of a LiveView socket where Beacon should connect to.
   """
   @type live_socket_path :: String.t()
@@ -209,6 +214,7 @@ defmodule Beacon.Config do
           css_compiler: css_compiler(),
           tailwind_config: tailwind_config(),
           tailwind_css: tailwind_css(),
+          vendor_dir: vendor_dir(),
           live_socket_path: live_socket_path(),
           safe_code_check: safe_code_check(),
           template_formats: template_formats(),
@@ -246,6 +252,7 @@ defmodule Beacon.Config do
             css_compiler: Beacon.RuntimeCSS.TailwindCompiler,
             tailwind_config: nil,
             tailwind_css: nil,
+            vendor_dir: nil,
             live_socket_path: "/live",
             # TODO: change safe_code_check to true when it's ready to parse complex codes
             safe_code_check: false,

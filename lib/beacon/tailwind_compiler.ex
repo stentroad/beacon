@@ -39,7 +39,9 @@ defmodule Beacon.RuntimeCSS.TailwindCompiler do
     tmp_dir = tmp_dir!()
     templates_path = generate_template_files!(tmp_dir, site)
     input_css_path = generate_input_css_file!(tmp_dir, site)
+    copy_vendor_dir(tmp_dir, site)
     output = execute(tmp_dir, input_css_path)
+    File.rm_rf!(Path.join(tmp_dir, "vendor"))
     cleanup(tmp_dir, templates_path)
     {:ok, output}
   end
@@ -171,6 +173,22 @@ defmodule Beacon.RuntimeCSS.TailwindCompiler do
     end
   end
 
+  defp vendor_dir!(site) do
+    vendor_dir = Beacon.Config.fetch!(site).vendor_dir
+
+    if File.dir?(vendor_dir) do
+      vendor_dir
+    else
+      raise """
+      Vendor dir not found
+
+      Make sure the vendor dir exists at #{inspect(vendor_dir)}
+
+      See Beacon.Config for more info.
+      """
+    end
+  end
+
   defp generate_template_files!(tmp_dir, site) when is_atom(site) do
     [
       Task.async(fn ->
@@ -226,6 +244,11 @@ defmodule Beacon.RuntimeCSS.TailwindCompiler do
     input_css_path = Path.join(tmp_dir, "input.css")
     File.write!(input_css_path, IO.iodata_to_binary([File.read!(tailwind_css_path), "\n", beacon_stylesheets]))
     input_css_path
+  end
+
+  defp copy_vendor_dir(tmp_dir, site) do
+    vendor_dir = vendor_dir!(site)
+    File.cp_r!(vendor_dir, Path.join(tmp_dir, "vendor"))
   end
 
   defp remove_special_chars(name), do: String.replace(name, ~r/[^[:alnum:]_]+/, "_")
