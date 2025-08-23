@@ -1,5 +1,5 @@
 /* tailwind */
-@import "tailwindcss" source(none);
+@import "tailwindcss";
 
 /* phoenix */
 .alert {

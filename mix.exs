@@ -84,8 +84,7 @@ defmodule Beacon.MixProject do
       {:postgrex, "~> 0.16"},
       {:safe_code, "~> 0.2"},
       {:solid, "~> 0.14"},
-      # TODO: tailwind v4 needs more testing
-      {:tailwind, "~> 0.2"},
+      {:tailwind, "~> 0.3"},
       esbuild_version(),
       {:igniter, ">= 0.6.25", optional: true},
 
@@ -134,7 +133,7 @@ defmodule Beacon.MixProject do
         "esbuild.install --if-missing",
         "cmd npm install --prefix assets"
       ],
-      "assets.build": ["esbuild cdn", "esbuild cdn_min", "esbuild tailwind_bundle"]
+      "assets.build": ["esbuild cdn", "esbuild cdn_min"]
     ]
   end
 

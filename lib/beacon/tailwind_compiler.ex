@@ -37,61 +37,33 @@ defmodule Beacon.RuntimeCSS.TailwindCompiler do
   @spec compile(Beacon.Types.Site.t()) :: {:ok, String.t()} | {:error, any()}
   def compile(site) when is_atom(site) do
     tmp_dir = tmp_dir!()
-    config_file_path = generate_tailwind_config_file(site, tmp_dir, beacon_content(tmp_dir))
     templates_path = generate_template_files!(tmp_dir, site)
     input_css_path = generate_input_css_file!(tmp_dir, site)
-    output = execute(tmp_dir, config_file_path, input_css_path)
+    output = execute(tmp_dir, input_css_path)
     cleanup(tmp_dir, templates_path)
     {:ok, output}
   end
 
-  defp generate_tailwind_config_file(site, tmp_dir, content) do
-    tailwind_config = tailwind_config_path!(site)
-
-    unless Application.get_env(:tailwind, :version) do
-      default_tailwind_version = Beacon.tailwind_version()
-      Application.put_env(:tailwind, :version, default_tailwind_version)
-    end
-
-    Application.put_env(:tailwind, :beacon_runtime, [])
-
-    tailwind_config = """
-    const userConfig = require(\"#{tailwind_config}\")
-
-    module.exports = {
-      ...userConfig,
-      content: [
-        <%= @beacon_content %>,
-        ...(userConfig.content || [])
-      ]
-    }
-    """
-
-    tailwind_config
-    |> EEx.eval_string(assigns: %{beacon_content: content})
-    |> write_file!(tmp_dir, "tailwind.config.js")
-  end
-
-  defp execute(tmp_dir, config_file_path, input_css_file_path) do
+  defp execute(tmp_dir, input_css_file_path) do
     output_css_path = Path.join(tmp_dir, "generated.css")
 
     opts =
       if Code.ensure_loaded?(Mix.Project) and Mix.env() in [:test, :dev] do
         ~w(
-      --config=#{config_file_path}
       --input=#{input_css_file_path}
       --output=#{output_css_path}
+      --cd=#{tmp_dir}
     )
       else
         ~w(
-      --config=#{config_file_path}
       --input=#{input_css_file_path}
       --output=#{output_css_path}
+      --cd=#{tmp_dir}
       --minify
     )
       end
 
-    {cli_output, cli_exit_code} = run_cli(:beacon_runtime, opts)
+    {cli_output, cli_exit_code} = run_cli(:beacon_runtime, opts, tmp_dir)
 
     output =
       if cli_exit_code == 0 do
@@ -107,7 +79,7 @@ defmodule Beacon.RuntimeCSS.TailwindCompiler do
         """
       end
 
-    cleanup(tmp_dir, [config_file_path, input_css_file_path, output_css_path])
+    cleanup(tmp_dir, [input_css_file_path, output_css_path])
 
     output
   end
@@ -116,7 +88,7 @@ defmodule Beacon.RuntimeCSS.TailwindCompiler do
   # Note that `:cd` is the root dir for regular and umbrella projects so the paths have to be defined accordingly.
   # https://github.com/phoenixframework/tailwind/blob/8cf9810474bf37c1b1dd821503d756885534d2ba/lib/tailwind.ex#L192
   @doc false
-  def run_cli(profile, extra_args) when is_atom(profile) and is_list(extra_args) do
+  def run_cli(profile, extra_args, cd \\ File.cwd!()) when is_atom(profile) and is_list(extra_args) do
     version =
       case Tailwind.bin_version() do
         {:ok, version} ->
@@ -148,7 +120,7 @@ defmodule Beacon.RuntimeCSS.TailwindCompiler do
     args = config[:args] || []
 
     opts = [
-      cd: File.cwd!(),
+      cd: cd,
       env: config[:env] || %{},
       stderr_to_stdout: true
     ]
@@ -258,42 +230,10 @@ defmodule Beacon.RuntimeCSS.TailwindCompiler do
 
   defp remove_special_chars(name), do: String.replace(name, ~r/[^[:alnum:]_]+/, "_")
 
-  # include paths for the following scenarios:
-  # - regular app
-  # - umbrella app running from root
-  # - umbrella app running from the web app
-  defp beacon_content(tmp_dir) do
-    ~s(
-    './assets/js/**/*.js',
-    './lib/*_web.ex',
-    './lib/*_web/**/*.*ex',
-    './apps/*_web/assets/**/*.js',
-    '!./apps/*_web/assets/node_modules/**',
-    './apps/*_web/lib/*_web.ex',
-    './apps/*_web/lib/*_web/**/*.*ex',
-    '#{tmp_dir}/*.template'
-    )
-  end
-
   defp tmp_dir! do
     tmp_dir = Path.join(System.tmp_dir!(), random_dir())
     File.mkdir_p!(tmp_dir)
     tmp_dir
-  end
-
-  defp write_file!(content, tmp_dir, filename) do
-    Logger.debug("""
-    writing file #{filename}
-
-    Content:
-
-      #{content}
-
-    """)
-
-    filepath = Path.join(tmp_dir, filename)
-    File.write!(filepath, content)
-    filepath
   end
 
   defp random_dir, do: :crypto.strong_rand_bytes(12) |> Base.encode16()

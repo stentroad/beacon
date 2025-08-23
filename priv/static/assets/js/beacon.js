@@ -1,4 +1,4 @@
-var Beacon = (() => {
+(() => {
   // js/beacon.js
   window.addEventListener("phx:beacon:page-updated", (e) => {
     if (e.detail.hasOwnProperty("runtime_css_path")) {

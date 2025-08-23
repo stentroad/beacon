@@ -14,17 +14,12 @@ if Mix.env() == :dev do
   end
 
   config :esbuild,
-    version: "0.23.0",
-    cdn: esbuild.(~w(--format=iife --target=es2016 --global-name=Beacon --outfile=../priv/static/beacon.js)),
-    cdn_min: esbuild.(~w(--format=iife --target=es2016 --global-name=Beacon --minify --outfile=../priv/static/beacon.min.js)),
-    tailwind_bundle: [
-      args: ~w(tailwind.config.js --bundle --format=esm --target=es2016 --outfile=../priv/tailwind.config.bundle.js),
-      cd: Path.expand("../assets", __DIR__),
-      env: %{"NODE_PATH" => Path.expand("../deps", __DIR__)}
-    ]
+    version: "0.25.4",
+    cdn: esbuild.(~w(--format=iife --target=es2022 --global-name=Beacon --outfile=../priv/static/beacon.js)),
+    cdn_min: esbuild.(~w(--format=iife --target=es2022 --global-name=Beacon --minify --outfile=../priv/static/beacon.min.js))
 end
 
-config :tailwind, version: "3.4.4"
+config :tailwind, version: "4.1.7"
 
 # keep do block for igniter
 if config_env() == :test do
