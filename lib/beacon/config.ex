@@ -284,6 +284,7 @@ defmodule Beacon.Config do
           | {:css_compiler, css_compiler()}
           | {:tailwind_config, tailwind_config()}
           | {:tailwind_css, tailwind_css()}
+          | {:vendor_dir, vendor_dir()}
           | {:live_socket_path, live_socket_path()}
           | {:safe_code_check, safe_code_check()}
           | {:template_formats, template_formats()}
@@ -315,6 +316,8 @@ defmodule Beacon.Config do
     * `:tailwind_config` - `t:tailwind_config/0` (optional). Defaults to `Path.join(Application.app_dir(:beacon, "priv"), "tailwind.config.bundle.js")`.
 
     * `:tailwind_css` - `t:tailwind_css/0` (optional). Defaults to `Path.join(Application.app_dir(:beacon, "priv"), "tailwind.css")`.
+
+    * `:vendor_dir` - `t:vendor_dir/0` (required)
 
     * `:live_socket_path` - `t:live_socket_path/0` (optional). Defaults to `"/live"`.
 
