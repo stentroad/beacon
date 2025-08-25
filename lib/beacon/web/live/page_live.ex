@@ -19,7 +19,9 @@ defmodule Beacon.Web.PageLive do
     %{"path" => path} = params
     %{"beacon_site" => site} = session
 
-    if Beacon.Config.fetch!(site).mode == :live and connected?(socket) do
+    config = Beacon.Config.fetch!(site)
+
+    if config.mode == :live and connected?(socket) do
       :ok = Beacon.PubSub.subscribe_to_page(site, path)
     end
 
@@ -41,7 +43,9 @@ defmodule Beacon.Web.PageLive do
     page = RouterServer.lookup_page!(site, path)
     socket = Component.assign(socket, beacon: BeaconAssigns.new(page, variant_roll: variant_roll))
 
-    {:ok, socket, layout: {Beacon.Web.Layouts, :dynamic}}
+    layout = config.dynamic_layout || {Beacon.Web.Layouts, :dynamic}
+
+    {:ok, socket, layout: layout}
   end
 
   def render(assigns) do

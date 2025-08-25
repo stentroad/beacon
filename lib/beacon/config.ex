@@ -99,6 +99,11 @@ defmodule Beacon.Config do
   @type vendor_dir :: Path.t()
 
   @typedoc """
+  Dynamic template layout. If not set defaults to {Beacon.Web.Layouts, :dynamic}
+  """
+  @type dynamic_layout :: term()
+
+  @typedoc """
   Path of a LiveView socket where Beacon should connect to.
   """
   @type live_socket_path :: String.t()
@@ -215,6 +220,7 @@ defmodule Beacon.Config do
           tailwind_config: tailwind_config(),
           tailwind_css: tailwind_css(),
           vendor_dir: vendor_dir(),
+          dynamic_layout: dynamic_layout(),
           live_socket_path: live_socket_path(),
           safe_code_check: safe_code_check(),
           template_formats: template_formats(),
@@ -253,6 +259,7 @@ defmodule Beacon.Config do
             tailwind_config: nil,
             tailwind_css: nil,
             vendor_dir: nil,
+            dynamic_layout: nil,
             live_socket_path: "/live",
             # TODO: change safe_code_check to true when it's ready to parse complex codes
             safe_code_check: false,
@@ -285,6 +292,7 @@ defmodule Beacon.Config do
           | {:tailwind_config, tailwind_config()}
           | {:tailwind_css, tailwind_css()}
           | {:vendor_dir, vendor_dir()}
+          | {:dynamic_layout, dynamic_layout()}
           | {:live_socket_path, live_socket_path()}
           | {:safe_code_check, safe_code_check()}
           | {:template_formats, template_formats()}
@@ -318,6 +326,8 @@ defmodule Beacon.Config do
     * `:tailwind_css` - `t:tailwind_css/0` (optional). Defaults to `Path.join(Application.app_dir(:beacon, "priv"), "tailwind.css")`.
 
     * `:vendor_dir` - `t:vendor_dir/0` (required)
+
+    * `:dynamic_layout` - `t:dynamic_layout/0` (optional). Defaults to `{Beacon.Web.Layouts, :dynamic}`.
 
     * `:live_socket_path` - `t:live_socket_path/0` (optional). Defaults to `"/live"`.
 
